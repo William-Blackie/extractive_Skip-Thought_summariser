@@ -3,9 +3,15 @@ import copy
 import sys
 
 #------------------------------------------------------------------------------
-sys.path.append('/u/rkiros/research/skipthoughts/')
+sys.path.append(r'decoding/homogeneous_data.py')
 import skipthoughts
 #------------------------------------------------------------------------------
+
+"""
+Modified: William Blackie
+
+Reason: changing file paths
+"""
 
 class HomogeneousData():
 

@@ -1,7 +1,13 @@
 import numpy
 import copy
 
-class HomogeneousData():
+'''
+
+Modified: William Blackie
+'''
+
+
+class HomogeneousData:
 
     def __init__(self, data, batch_size=128, maxlen=None):
         self.batch_size = 128
@@ -74,19 +80,29 @@ class HomogeneousData():
     def __iter__(self):
         return self
 
-def prepare_data(seqs_x, seqs_y, seqs_z, worddict, maxlen=None, n_words=20000):
+
+def prepare_data(seqs_x, seqs_y, seqs_z, worddict, n_words, maxlen):
     """
-    Put the data into format useable by the model
+    Put the data into format usable by the model
+    :param maxlen:
+    :param worddict:
+    :param seqs_z:
+    :param seqs_y:
+    :param seqs_x:
+    :type n_words: object
+
+
+    Edited to prevent Key Errors
     """
     seqsX = []
     seqsY = []
     seqsZ = []
     for cc in seqs_x:
-        seqsX.append([worddict[w] if worddict[w] < n_words else 1 for w in cc.split()])
+        seqsX.append([worddict[w] if worddict.get(w, 'UNK') < n_words else 1 for w in cc.split()])
     for cc in seqs_y:
-        seqsY.append([worddict[w] if worddict[w] < n_words else 1 for w in cc.split()])
+        seqsY.append([worddict[w] if worddict.get(w, 'UNK') < n_words else 1 for w in cc.split()])
     for cc in seqs_z:
-        seqsZ.append([worddict[w] if worddict[w] < n_words else 1 for w in cc.split()])
+        seqsZ.append([worddict[w] if worddict.get(w, 'UNK') < n_words else 1 for w in cc.split()])
     seqs_x = seqsX
     seqs_y = seqsY
     seqs_z = seqsZ
@@ -140,6 +156,7 @@ def prepare_data(seqs_x, seqs_y, seqs_z, worddict, maxlen=None, n_words=20000):
         z_mask[:lengths_z[idx]+1,idx] = 1.
 
     return x, x_mask, y, y_mask, z, z_mask
+
 
 def grouper(text):
     """
