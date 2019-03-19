@@ -1,21 +1,27 @@
-#Extractive_Skip-Thought_summeriser
-A final year project for the University of the West of England. This module allows users to summerise a URL or a textfile.
+# Extractive_Skip-Thought_summariser
+A final year project for the University of the West of England. This module allows users to summarise a URL or a testfile using pre-trained Skip-Thought vectors for more details of training please see below.
 
-The summeriser itself can be found [here]() as a stand alone module with instructions for training,
-##Getting started
+This summariser builds upon the original work of Ryan Kiros and others to build an extractive summariser and is tailored for deployment in a Django webserver although others may work.
+
+The summariser itself was trained using a sample of an english Wikipedia dump and then after roughly two weeks of training implemented vocuablary expansion using Facebook's Fast-Text vectors increasing the vocabulary greatly.
+
+The front-end Django web-server I made can be found [here.](https://github.com/William-Blackie/Extractive_Skip-thought_Summeriser) This solution offers more of a complete interaction with this module as text file summation is coupled with using an WSGI request to invoke the methods, although article summation via web scraping will still work.
+
+## Getting started
 To get started you will need:
 
-###Hardware
-For Skippy:
+### Hardware
+For Summation:
 * 8GB of ram, more is better.
 * A recent CPU
-* Around X of storage.
+* Around 20GB of storage.
 
-For training skipthoughts:
-* please see my [skipthoughts repo](https://github.com/William-Blackie/Extractive_Skip-thought_Summeriser) for instructions.
+For Training:
+* Minimum 16GB of ram, more is better.
+* A recent CPU
+* Around 20GB of storage + however big your corpus and vectors if you are doing the vocabulary expansion step.
 
-
-###Software
+### Software
 
 [git bash](https://gitforwindows.org/) - to clone the repo.
 
@@ -25,17 +31,19 @@ For training skipthoughts:
 
 [CUDNN 7.42](https://developer.nvidia.com/rdp/cudnn-archive) - CUDA updates used in Theano, the files need to be placed in the installation directory of CUDA.
 
-##Cloning the repo
+## Cloning the repo
 Using git bash:
 ```
-    git clone https://github.com/William-Blackie/skip-thought_django_website
+    git clone https://github.com/William-Blackie/extractive_Skip-Thought_summariser
 ```
 
 ## Installation
-###Theano
+### Theano
 Theano requires environment variables to be set, which can be done programmatically but for ease of please save the following into your home directory as theanorc.txt:
 
 Please make sure the cuda and dnn paths match your own installation.
+
+Note if you are planning on training device=cuda and a recent Nvid compute card or graphics card is needed, Minimum 6gb ram but more will allow for increased batch size.
 ```
 [global]
 floatX = float32
@@ -66,22 +74,17 @@ MKL_THREADING_LAYER=GNU
 Anaconda
 Open the terminal and follow the bellow instructions.
 
-Create a new environment:
+make sure you are in the root of the cloned repo.
 ```
-  conda create -n yourenvname python=2.7.15 anaconda
+  conda env create -n skip_env -f environment.yml
 ```
+
 
 Activate your environment:
 ```
-  conda activate yourenvname
+  conda activate skip_env
 ```
 
-Install requirements:
-
-make sure you are in the root of the cloned repo.
-```
-  conda create --name yourenvname --file requirements.txt
-```
 
 you should see something like this:
 
@@ -89,48 +92,45 @@ you should see something like this:
     <img src="README_images/requirements.txt_output.jpg" width="530" height="140" />
 </p>
 
-Create migrations:
-```
-  python manage.py migrate
-```
 
-run make migrations:
-```
-  python manage.py makemigrations
-```
 
-run your new server:
-```
-  python manage.py runserver
-```
-
-If all went well you should see something like this:
-
-<p>
-    <img src="README_images/start_server.jpg" width="530" height="140" />
-</p>
-
-open Skippy! 
-
-Paste the following into your chosen web browser:
-```
-  localhost:8000
-```
-
-##Basic usage
-### Summarise a text file
-Select summarise in the navigation bar, select the upload button and select English text.txt encoded in UTF-8, select your compression rate for the text(optimal is 0.3) and wait for the article to be summarised!
-
+## Basic usage
 
 ### Summarise a URL
-Select summarise in the navigation bar and paste an English URL, select your compression rate for the text(optimal is 0.3) and wait for the article to be summarised!
+Create a python file in the root directory and add the following:
+
+```
+"""
+Author: William Blackie
+Example method for the summation of english URL.
+"""
+
+import WebScraperSummation 
+
+
+# Some variables to get you started:
+url = r"https://www.bbc.co.uk/news/business-47287386"
+remove_lists = True
+compression_rate = 0.7 # (0.1-1.0)
+errors = {} # Dict for error checking; non-english text for example.
+
+
+def web_skip_thought_summeriser:
+    scraper = WebScraperSummation.WebScraperSummation()
+    summary_text, total_words, total_words_removed, errors = scraper.scrape(
+                        url, remove_lists,
+                        compression_rate, errors)
+     print summary_text
+```
 
 Note that summation will take some time depending article length and a higher compression rate, having a recent CPU will help but this project will benefit greatly from being properly deployed.
-### About page
-Some more information about the project.
 
-### Research 
-A basic summary of my project and the implementations details including more information on relevant papers.
+## Training
+
+### WikiExtractor
+
+### VectorExpansion
+
 ## Authors
 
 * **William Blackie** - [Github](https://github.com/William-Blackie) - Email: contact@williamblackie.com
@@ -146,4 +146,4 @@ If you choose to extend this project please give credit to the training material
 
 * This project uses a research implementation by [Kiros, Ryan and Zhu, Yukun and Salakhutdinov, Ruslan and Zemel, Richard S and Torralba, Antonio and Urtasun, Raquel and Fidler, Sanja](https://github.com/ryankiros/skip-thoughts) of Skip-Thought to create and train my vectors and the encoding of sentences into vectors. For more information please read their paper [here.](https://arxiv.org/abs/1506.06726)
 * This project implemented FaceBook's [FastText vectors](https://fasttext.cc/docs/en/crawl-vectors.html) used in the vocabulary expansion step after training.
-* The corpus used in training of my vectors was a full dump of a [english Wikipedia](https://dumps.wikimedia.org/), of which a sample was taken.
+* The corpus used in training of my vectors was a full dump of [english Wikipedia](https://dumps.wikimedia.org/), of which a sample was taken.

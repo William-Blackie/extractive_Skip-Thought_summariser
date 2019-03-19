@@ -28,7 +28,8 @@ print "Done"
 
 
 print "Loading sentences...",
-with open(current_corpus_dir, 'r') as temp:  # Training created vectors on selected corpus
+with open(current_corpus_dir, 'r') as temp: 
+	# Training created vectors on selected corpus
     x = []
     x = nltk.tokenize.sent_tokenize(temp.read().decode("ascii", errors='ignore'), 'english')
     print len(x)
