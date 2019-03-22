@@ -72,7 +72,7 @@ class ArticleSummation:
 
             new_total_words = self.calculate_words()
 
-            return x, total_words, (total_words-new_total_words), self.error_dict
+            return x, total_words, abs(new_total_words-total_words), self.error_dict
         else:
             return "Article summation failed", 0, 0, self.error_dict
 
