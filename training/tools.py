@@ -4,7 +4,7 @@ Encoder + vocab expansion
 
 Modified: William Blackie
 
-Reason: PEP8 formatting, refactoring name of load_googlenews for clarity
+Reason: PEP8 formatting, refactoring name of load_googlenews for clarity, refactoring path and name of vectors to FastText.
 Reason: Replace dict with dict literal
 
 TODO need to modify for Fast-text + some naming conventions for clarity...
@@ -15,7 +15,6 @@ import theano.tensor as tensor
 from gensim.models import KeyedVectors
 
 from theano.sandbox.rng_mrg import MRG_RandomStreams as RandomStreams
-import gensim.models.keyedvectors
 import warnings
 import cPickle as Pkl
 import numpy
@@ -27,7 +26,6 @@ from scipy.linalg import norm
 
 warnings.filterwarnings(action='ignore', category=UserWarning,
                         module='gensim')  # Remove genism warnings for windows as they are irelevent
-from gensim.models import Word2Vec as word2vec
 from sklearn.linear_model import LinearRegression
 
 from utils import load_params, init_tparams
@@ -39,7 +37,7 @@ from model import init_params, build_encoder, build_encoder_w2v
 # -----------------------------------------------------------------------------#
 path_to_model = r'D:\Projects\skip-thoughts\models\my_bi_skip.npz'
 path_to_dictionary = r'D:\Projects\skip-thoughts\models\corpus\saved_dict.pk1'
-path_to_word2vec = r'D:\Projects\skip-thoughts\models\vectors\wiki.en.vec'
+path_to_fasttext = r'D:\Projects\skip-thoughts\models\vectors\wiki.en.vec'
 
 
 # -----------------------------------------------------------------------------#
@@ -89,8 +87,8 @@ def load_model(embed_map=None):
 
     # Load word2vec, if applicable
     if embed_map == None:
-        print 'Loading word2vec embeddings...'
-        embed_map = load_fasttext_vectors(path_to_word2vec)
+        print 'Loading FastText embeddings...'
+        embed_map = load_fasttext_vectors(path_to_fasttext)
 
     # Lookup table using vocab expansion trick
     print 'Creating word lookup tables...'
@@ -178,7 +176,7 @@ def load_fasttext_vectors():
     """
 
    # fast_text_model = KeyedVectors.load_word2vec_format(path_to_word2vec, binary=False)
-    embed_map = KeyedVectors.load_word2vec_format(path_to_word2vec, binary=False)
+    embed_map = KeyedVectors.load_word2vec_format(path_to_fasttext, binary=False)
     return embed_map
 
 

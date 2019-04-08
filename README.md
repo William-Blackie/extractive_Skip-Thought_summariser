@@ -12,14 +12,14 @@ To get started you will need:
 
 ### Hardware
 For Summation:
-* 8GB of ram, more is better.
+* 8GB of ram(untested), more is better.
 * A recent CPU
-* Around 20GB of storage.
+* Around 5GB of storage.
 
 For Training:
 * Minimum 16GB of ram, more is better.
 * A recent CPU
-* Around 20GB of storage + however big your corpus and vectors if you are doing the vocabulary expansion step.
+* Around 5GB of storage + however big your corpus and vectors if you are doing the vocabulary expansion step.
 
 ### Software
 
@@ -37,13 +37,19 @@ Using git bash:
     git clone https://github.com/William-Blackie/extractive_Skip-Thought_summariser
 ```
 
+## Models
+My trained models can be found here:
+```
+https://1drv.ms/f/s!AobPYFxChsscgoFVh3Xnz5b4Hk33vw
+```
+place them into the models folder.
 ## Installation
 ### Theano
 Theano requires environment variables to be set, which can be done programmatically but for ease of please save the following into your home directory as theanorc.txt:
 
-Please make sure the cuda and dnn paths match your own installation.
+Please make sure the CUDA and dnn paths match your own installation.
 
-Note if you are planning on training device=cuda and a recent Nvid compute card or graphics card is needed, Minimum 6gb ram but more will allow for increased batch size.
+Note if you are planning on training device=cuda and a recent Nividia compute card or graphics card is needed, Minimum 6gb ram but more will allow for increased batch size.
 ```
 [global]
 floatX = float32
@@ -71,18 +77,17 @@ enabled = True
 MKL_THREADING_LAYER=GNU
 ```
 
-Anaconda
+## Anaconda
 Open the terminal and follow the bellow instructions.
 
-make sure you are in the root of the cloned repo.
+Navigate to the root of the cloned project and run to create a conda environment for the project:
 ```
-  conda env create -n skip_env -f environment.yml
+  conda env create -n skippy_env -f package-list.txt
 ```
-
 
 Activate your environment:
 ```
-  conda activate skip_env
+  conda activate skippy_env
 ```
 
 
@@ -100,13 +105,12 @@ you should see something like this:
 Create a python file in the root directory and add the following:
 
 ```
+import WebScraperSummation 
+
 """
 Author: William Blackie
 Example method for the summation of english URL.
 """
-
-import WebScraperSummation 
-
 
 # Some variables to get you started:
 url = r"https://www.bbc.co.uk/news/business-47287386"
@@ -126,11 +130,14 @@ def web_skip_thought_summeriser:
 Note that summation will take some time depending article length and a higher compression rate, having a recent CPU will help but this project will benefit greatly from being properly deployed.
 
 ## Training
+Refactor the setup.py script to the correct directory to your WikiExtractor output and run, this will create 250MB corpus files and a dictionary from them, after which the current  corpus will be used for training.
+The Uni-Skip vectors have been trained for two weeks similar to the ones used in the original research implementation but using a non-fiction corpus.
 
 ### WikiExtractor
+WikiExtractor can be found here which includes details for usage. [Github](https://github.com/attardi/wikiextractor)
 
 ### VectorExpansion
-
+In vectorExpansion.py set the path variable to your chosen FastText vectors which will load the FastText vectors into your embeddings, vastly increasing the accuracy of summation.
 ## Authors
 
 * **William Blackie** - [Github](https://github.com/William-Blackie) - Email: contact@williamblackie.com

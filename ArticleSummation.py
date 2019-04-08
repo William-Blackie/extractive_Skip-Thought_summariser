@@ -47,8 +47,9 @@ class ArticleSummation:
             print('done')
 
             print("Clustering"),
+            # Get user defined number of clusters using compression rate.
             number_of_clusters = int(ceil(
-                len(encoded_article[0]) ** self.compression_rate))  # Get user defined number of clusters using compression rate.
+                len(encoded_article[0]) ** self.compression_rate))
 
             k_means_clusters = KMeans(n_clusters=number_of_clusters, random_state=0).fit(
                 encoded_article[0])  # Get the clusters of the article.
@@ -65,8 +66,8 @@ class ArticleSummation:
             ordering = sorted(range(number_of_clusters),
                               key=lambda cluster: avg[cluster])  # sort clusters by their average value.
             print ("done")
-
-            self.article[0] = ' '.join([self.article[0][closest[index]] for index in ordering])  # Join selected clusters in order.
+            # Join selected clusters in order.
+            self.article[0] = ' '.join([self.article[0][closest[index]] for index in ordering])
 
             [x.encode('utf-8') for x in self.article]  # encode article in utf-8 (removes ascii tokens) for formatting.
 

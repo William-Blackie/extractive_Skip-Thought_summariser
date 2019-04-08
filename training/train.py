@@ -46,8 +46,8 @@ def trainer(X,
             n_words=20000,
             maxlen_w=30,
             optimizer='adam',
-            batch_size=1,  # lowered from 64...
-            saveto=r'D:\Projects\skip-thoughts\models\my_bi_skip.npz',
+            batch_size=16,  # lowered from 64...
+            saveto=r'D:\Projects\skip-thoughts\models\my_uni_skip.npz',
             dictionary=r'D:\Projects\skip-thoughts\models\corpus\new_dict.pk1',
             saveFreq=1000,
             reload_=True):

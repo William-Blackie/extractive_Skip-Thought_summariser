@@ -13,5 +13,5 @@ model = tools.load_model(embed_map)
 print 'Vectors expanded'
 
 print 'Saving model...',
-pkl.dump(model, open('%s.pkl' % r'D:\Projects\skip-thoughts\models\new_bi_skip.npz', 'wb'))
+pkl.dump(model, open('%s.pkl' % r'D:\Projects\skip-thoughts\models\new_uni_skip.npz', 'wb'))
 print 'Model saved'

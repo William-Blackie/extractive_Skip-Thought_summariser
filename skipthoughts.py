@@ -25,8 +25,8 @@ path_to_models = os.path.join(dirname, r'models/')
 path_to_tables = os.path.join(dirname, r'models/')
 path_to_dict = os.path.join(dirname, r'models/corpus/')
 # -----------------------------------------------------------------------------#
-path_to_umodel = path_to_models + 'uni_skip.npz'
-path_to_bmodel = path_to_models + 'my_bi_skip.npz'
+path_to_umodel = path_to_models + 'my_uni_skip.npz'
+path_to_bmodel = path_to_models + 'bi_skip.npz'
 
 # layers: 'name': ('parameter initializer', 'feedforward')
 layers = {'gru': ('param_init_gru', 'gru_layer')}
@@ -51,10 +51,11 @@ class LoadModel:
         """
         # Load model options
         print 'Loading model parameters...'
-        with open('%s.pkl' % path_to_umodel, 'r') as f: # TODO modified as it had read errors...
-            uoptions = pickle.load(f)
         with open('%s.pkl' % path_to_bmodel, 'r') as f:
             boptions = pickle.load(f)
+        with open('%s.pkl' % path_to_umodel, 'r') as f:  # TODO modified due to read errors.
+            uoptions = pickle.load(f)
+
 
         # Load parameters
         uparams = init_params(uoptions)
@@ -102,7 +103,7 @@ def load_tables():
         words.append(line.decode('utf-8').strip())
     f.close()
 
-    words.append('UNK')  # TODO does this invalidate training?
+    words.append('UNK')
 
     utable = OrderedDict(zip(words, utable))
     btable = OrderedDict(zip(words, btable))
