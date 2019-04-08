@@ -94,15 +94,6 @@ Activate your environment:
   conda activate skippy_env
 ```
 
-
-you should see something like this:
-
-<p>
-    <img src="README_images/requirements.txt_output.jpg" width="530" height="140" />
-</p>
-
-
-
 ## Basic usage
 
 ### Summarise a URL
