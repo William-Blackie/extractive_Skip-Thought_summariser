@@ -42,6 +42,10 @@ My trained models can be found here:
 ```
 https://1drv.ms/f/s!AobPYFxChsscgoFVh3Xnz5b4Hk33vw
 ```
+Password 
+```
+Skippy
+```
 place them into the models folder.
 ## Installation
 ### Theano
