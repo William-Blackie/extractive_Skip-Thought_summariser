@@ -42,6 +42,10 @@ My trained models can be found here:
 ```
 https://1drv.ms/f/s!AobPYFxChsscgoFVh3Xnz5b4Hk33vw
 ```
+Password 
+```
+Skippy
+```
 place them into the models folder.
 ## Installation
 ### Theano
@@ -89,15 +93,6 @@ Activate your environment:
 ```
   conda activate skippy_env
 ```
-
-
-you should see something like this:
-
-<p>
-    <img src="README_images/requirements.txt_output.jpg" width="530" height="140" />
-</p>
-
-
 
 ## Basic usage
 
