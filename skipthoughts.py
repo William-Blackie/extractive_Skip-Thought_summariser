@@ -26,9 +26,7 @@ path_to_tables = os.path.join(dirname, r'models/')
 path_to_dict = os.path.join(dirname, r'models/corpus/')
 # -----------------------------------------------------------------------------#
 path_to_umodel = path_to_models + 'my_uni_skip.npz'
-path_to_bmodel = path_to_models + 'bi_skip.npz'
 
-# layers: 'name': ('parameter initializer', 'feedforward')
 layers = {'gru': ('param_init_gru', 'gru_layer')}
 
 
@@ -38,7 +36,6 @@ class LoadModel:
     This works in some cases for shared GPU memory but not consistent enough for use deployment.
     """
     def __init__(self):
-        self.btparams = None
         self.utparams = None
 
     def load_model(self):
@@ -51,43 +48,32 @@ class LoadModel:
         """
         # Load model options
         print 'Loading model parameters...'
-        with open('%s.pkl' % path_to_bmodel, 'r') as f:
-            boptions = pickle.load(f)
-        with open('%s.pkl' % path_to_umodel, 'r') as f:  # TODO modified due to read errors.
+        with open('%s.pkl' % path_to_umodel, 'r') as f:
             uoptions = pickle.load(f)
-
 
         # Load parameters
         uparams = init_params(uoptions)
         uparams = load_params(path_to_umodel, uparams)
         if self.utparams is None:
             self.utparams = init_tparams(uparams)
-        bparams = init_params_bi(boptions)
-        bparams = load_params(path_to_bmodel, bparams)
-        if self.btparams is None:
-            self.btparams = init_tparams(bparams)
 
         # Extractor functions
         print 'Compiling encoders...'
         embedding, x_mask, ctxw2v = build_encoder(self.utparams, uoptions)
         f_w2v = theano.function([embedding, x_mask], ctxw2v, name='f_w2v')
-        embedding, x_mask, ctxw2v = build_encoder_bi(self.btparams, boptions)
-        f_w2v2 = theano.function([embedding, x_mask], ctxw2v, name='f_w2v2')
-        self.btparams = None
         self.utparams = None
         # Tables
         print 'Loading tables...'
-        utable, btable = load_tables()
+        utable = load_table()
 
         # Store everything we need in a dictionary
         print 'Packing up...'
-        model = {'uoptions': uoptions, 'boptions': boptions, 'utable': utable, 'btable': btable, 'f_w2v': f_w2v,
-                 'f_w2v2': f_w2v2}
+        model = {'uoptions': uoptions, 'utable': utable, 'f_w2v': f_w2v}
 
         return model
 
 
-def load_tables():
+def load_table():
     """
     Load the tables
 
@@ -97,7 +83,6 @@ def load_tables():
     """
     words = []
     utable = numpy.load(path_to_tables + 'utable.npy')
-    btable = numpy.load(path_to_tables + 'btable.npy')
     f = open(path_to_dict + 'saved_dict.pk1', 'r')
     for line in f:
         words.append(line.decode('utf-8').strip())
@@ -106,8 +91,7 @@ def load_tables():
     words.append('UNK')
 
     utable = OrderedDict(zip(words, utable))
-    btable = OrderedDict(zip(words, btable))
-    return utable, btable
+    return utable
 
 
 class Encoder(object):
@@ -130,18 +114,17 @@ def encode(model, X, use_norm=True, verbose=True, batch_size=128, use_eos=False)
     Encode sentences in the list X. Each entry will return a vector
 
     Modified to get dictionary from new table values.
+    Modified from "combine-skip" to "uni-skip"
     """
     # first, do preprocessing
     X = preprocess(X)
 
     # word dictionary and init
     d = defaultdict(lambda: 0)
-    for w in model['btable'].keys():
+    for w in model['utable'].keys():
         d[w] = 1
 
     ufeatures = numpy.zeros((len(X), model['uoptions']['dim']), dtype='float32')
-    bfeatures = numpy.zeros((len(X), 2 * model['boptions']['dim']), dtype='float32')
-
     # length dictionary
     ds = defaultdict(list)
     captions = [s.split() for s in X]
@@ -158,38 +141,28 @@ def encode(model, X, use_norm=True, verbose=True, batch_size=128, use_eos=False)
 
             if use_eos:
                 uembedding = numpy.zeros((k + 1, len(caps), model['uoptions']['dim_word']), dtype='float32')
-                bembedding = numpy.zeros((k + 1, len(caps), model['boptions']['dim_word']), dtype='float32')
             else:
                 uembedding = numpy.zeros((k, len(caps), model['uoptions']['dim_word']), dtype='float32')
-                bembedding = numpy.zeros((k, len(caps), model['boptions']['dim_word']), dtype='float32')
             for ind, c in enumerate(caps):
                 caption = captions[c]
                 for j in range(len(caption)):
                     if d[caption[j]] > 0:
                         uembedding[j, ind] = model['utable'][caption[j]]
-                        bembedding[j, ind] = model['btable'][caption[j]]
                     else:
                         uembedding[j, ind] = model['utable']['UNK']
-                        bembedding[j, ind] = model['btable']['UNK']
                 if use_eos:
                     uembedding[-1, ind] = model['utable']['<eos>']
-                    bembedding[-1, ind] = model['btable']['<eos>']
             if use_eos:
                 uff = model['f_w2v'](uembedding, numpy.ones((len(caption) + 1, len(caps)), dtype='float32'))
-                bff = model['f_w2v2'](bembedding, numpy.ones((len(caption) + 1, len(caps)), dtype='float32'))
             else:
                 uff = model['f_w2v'](uembedding, numpy.ones((len(caption), len(caps)), dtype='float32'))
-                bff = model['f_w2v2'](bembedding, numpy.ones((len(caption), len(caps)), dtype='float32'))
             if use_norm:
                 for j in range(len(uff)):
                     uff[j] /= norm(uff[j])
-                    bff[j] /= norm(bff[j])
             for ind, c in enumerate(caps):
                 ufeatures[c] = uff[ind]
-                bfeatures[c] = bff[ind]
 
-    features = numpy.c_[ufeatures, bfeatures]
-    return features
+    return ufeatures
 
 
 def preprocess(text):
